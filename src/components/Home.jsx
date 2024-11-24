@@ -73,7 +73,7 @@ const Home = () => {
             padding: '10px',
             position: 'absolute',
             bottom: '0',
-            width: '100%',
+            width: '90%',
             backgroundColor: '#fff',
             color: '#333',
             fontSize: '14px',
