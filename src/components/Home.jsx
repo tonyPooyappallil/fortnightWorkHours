@@ -23,11 +23,8 @@ const Home = () => {
 
     // Function to clear all data
     const clearAllData = () => {
-        // Clear state data
         setEmployer([]);
         setWorkLog([]);
-
-        // Clear local storage
         localStorage.removeItem('employer');
         localStorage.removeItem('workLog');
     };
@@ -71,37 +68,40 @@ const Home = () => {
             marginBottom: '10px',
             color: '#444',
         },
-        content: {
+        footer: {
             textAlign: 'center',
+            padding: '10px',
+            position: 'absolute',
+            bottom: '0',
+            width: '100%',
+            backgroundColor: '#fff',
+            color: '#333',
+            fontSize: '14px',
         },
         formSection: {
-
             marginTop: '30px',
         },
         sectionContainer: {
-            flex: '1 1 400px', // Allow the forms to grow and shrink, with a base width of 400px
+            flex: '1 1 400px',
             borderRadius: '8px',
-            marginBottom: '20px', // Add space between forms when wrapping
-        },
-        headerSmall: {
-            fontSize: '24px', // Smaller header for small screens
-        },
-        sectionTitleSmall: {
-            fontSize: '20px', // Smaller section title for small screens
+            marginBottom: '20px',
         },
     };
 
     return (
         <div style={styles.container}>
-            <div><button
-                onClick={clearAllData}
-                style={styles.button}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
-                onMouseLeave={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
-            >
-                Clear All Data
-            </button></div>
-            <div>            <h1 style={styles.header}>Fortnight Work Hour Calculator</h1>
+            <div>
+                <button
+                    onClick={clearAllData}
+                    style={styles.button}
+                    onMouseEnter={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
+                    onMouseLeave={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
+                >
+                    Clear All Data
+                </button>
+            </div>
+            <div>
+                <h1 style={styles.header}>Fortnight Work Hour Calculator</h1>
             </div>
 
             {/* Form Section with AddEmployer and AddShiftWorked side by side */}
@@ -119,6 +119,11 @@ const Home = () => {
 
             <h2 style={styles.sectionTitle}>Fortnight Ending Next Week</h2>
             <WorkHoursCalendar workLog={workLog} startDateOffsetWeeks={0} />
+
+            {/* Footer Section */}
+            <footer style={styles.footer}>
+                © {new Date().getFullYear()} Tony Pooyappallil. All rights reserved.
+            </footer>
         </div>
     );
 };
