@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { deleteOldLogs } from '../utils';
 
-const WorkHoursCalendar = ({ workLog, startDateOffsetWeeks }) => {
+const WorkHoursCalendar = ({ workLog, startDateOffsetWeeks, setWorkLog }) => {
     const generateDates = (startDateOffsetWeeks) => {
         const now = new Date();
 
@@ -26,6 +27,12 @@ const WorkHoursCalendar = ({ workLog, startDateOffsetWeeks }) => {
     };
 
     const dates = generateDates(startDateOffsetWeeks);
+
+    useEffect(() => {
+        if (setWorkLog) {
+            deleteOldLogs(dates[0], workLog, setWorkLog);
+        }
+    }, [new Date().toLocaleDateString()]); // Re-run only when these dependencies change
 
     const getLogsForDate = (date) => {
         const logDateString = date.toLocaleDateString('en-CA'); // Outputs YYYY-MM-DD format

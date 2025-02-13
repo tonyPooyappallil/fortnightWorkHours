@@ -115,7 +115,7 @@ const Home = () => {
             </div>
 
             <h2 style={styles.sectionTitle}>Fortnight Starting Last Week</h2>
-            <WorkHoursCalendar workLog={workLog} startDateOffsetWeeks={-7} />
+            <WorkHoursCalendar workLog={workLog} startDateOffsetWeeks={-7} setWorkLog={setWorkLog} />
 
             <h2 style={styles.sectionTitle}>Fortnight Ending Next Week</h2>
             <WorkHoursCalendar workLog={workLog} startDateOffsetWeeks={0} />
