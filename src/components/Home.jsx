@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import AddEmployer from './AddEmployer';
 import AddShiftWorked from './AddShiftWorked';
 import WorkHoursCalendar from './WorkHoursCalendar';
+import { signOut } from "firebase/auth";
+import { auth } from "./../firebase";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+    const navigate = useNavigate();
+
     const [employer, setEmployer] = useState(() => {
         return JSON.parse(localStorage.getItem('employer')) || [];
     });
@@ -27,6 +32,11 @@ const Home = () => {
         setWorkLog([]);
         localStorage.removeItem('employer');
         localStorage.removeItem('workLog');
+    };
+
+    const handleLogout = async () => {
+        await signOut(auth);
+        navigate("/login");
     };
 
     // Styling
@@ -99,6 +109,7 @@ const Home = () => {
                 >
                     Clear All Data
                 </button>
+                <button onClick={handleLogout}>Logout</button>
             </div>
             <div>
                 <h1 style={styles.header}>Fortnight Work Hour Calculator</h1>
