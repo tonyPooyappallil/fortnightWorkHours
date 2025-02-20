@@ -1,5 +1,4 @@
-// src/Login.js
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
 import { auth, provider } from '../firebase' // Ensure Google provider is imported
 import { useNavigate } from 'react-router-dom'
@@ -9,6 +8,17 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
+
+  // Automatically redirect if user is logged in
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        navigate('/home') // Redirect to home if user is already logged in
+      }
+    })
+
+    return () => unsubscribe() // Clean up the listener on unmount
+  }, [navigate])
 
   const handleLogin = async e => {
     e.preventDefault()
