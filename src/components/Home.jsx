@@ -123,24 +123,36 @@ const Home = () => {
 
     // Function to clear all data
     const clearAllData = async () => {
-        if (user) {
-            const employerRef = collection(db, "users", user.uid, "employers");
-            const workLogRef = collection(db, "users", user.uid, "workLog");
+        // Ask for user confirmation before proceeding with clearing data
+        const isConfirmed = window.confirm(
+            "Are you sure you want to clear all data? This will remove all employers and work logs permanently."
+        );
 
-            const employerSnapshot = await getDocs(employerRef);
-            employerSnapshot.forEach(async (doc) => {
-                await deleteDoc(doc.ref);
-            });
+        if (isConfirmed) {
+            if (user) {
+                const employerRef = collection(db, "users", user.uid, "employers");
+                const workLogRef = collection(db, "users", user.uid, "workLog");
 
-            const workLogSnapshot = await getDocs(workLogRef);
-            workLogSnapshot.forEach(async (doc) => {
-                await deleteDoc(doc.ref);
-            });
+                const employerSnapshot = await getDocs(employerRef);
+                employerSnapshot.forEach(async (doc) => {
+                    await deleteDoc(doc.ref);
+                });
 
-            setEmployer([]);
-            setWorkLog([]);
+                const workLogSnapshot = await getDocs(workLogRef);
+                workLogSnapshot.forEach(async (doc) => {
+                    await deleteDoc(doc.ref);
+                });
+
+                // Reset local state after data is cleared
+                setEmployer([]);
+                setWorkLog([]);
+                alert('All data has been cleared!');
+            }
+        } else {
+            console.log('Clear data action canceled.');
         }
     };
+
 
 
     const handleLogout = async () => {
