@@ -29,7 +29,7 @@ const AddShiftWorked = ({ employerList, workLog, setWorkLog }) => {
             hours: parseFloat(shiftHours),
             date: shiftDate, // Use the selected date
         };
-        setWorkLog([...workLog, newShift]);
+        setWorkLog(newShift);
 
         // Reset form fields
         setSelectedEmployer('');

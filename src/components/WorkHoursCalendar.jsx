@@ -28,50 +28,65 @@ const WorkHoursCalendar = ({ workLog, startDateOffsetWeeks, setWorkLog }) => {
 
     const dates = generateDates(startDateOffsetWeeks);
 
-    useEffect(() => {
-        if (setWorkLog) {
-            deleteOldLogs(dates[0], workLog, setWorkLog);
-        }
-    }, [new Date().toLocaleDateString()]); // Re-run only when these dependencies change
+    // useEffect(() => {
+    //     if (setWorkLog) {
+    //         deleteOldLogs(dates[0], workLog, setWorkLog);
+    //     }
+    // }, [new Date().toLocaleDateString(), dates, workLog]); // Re-run only when these dependencies change
 
     const getLogsForDate = (date) => {
-        const logDateString = date.toLocaleDateString('en-CA'); // Outputs YYYY-MM-DD format
-        return workLog.filter((log) => {
-            const logDateFormatted = new Date(log.date).toLocaleDateString('en-CA');
-            return logDateFormatted === logDateString;
-        });
+        const logDateString = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+
+        return workLog
+            .filter((log) => log && log.date) // ✅ Ensure log is valid and has a `date`
+            .filter((log) => {
+                const logDateFormatted = new Date(log.date).toLocaleDateString('en-CA');
+                return logDateFormatted === logDateString;
+            });
     };
 
+
     const getTotalHoursByEmployer = () => {
+        if (!Array.isArray(workLog) || workLog.length === 0) {
+            return {}; // Return empty object if workLog is undefined or empty
+        }
+
         const totals = {};
         const fortnightStart = dates[0];
         const fortnightEnd = dates[dates.length - 1];
 
         workLog
-            .filter((log) => {
-                const logDate = new Date(log.date);
-                return logDate >= fortnightStart && logDate <= fortnightEnd;
-            })
+            .filter((log) => log && log.date) // Ensure log exists and has a date
             .forEach((log) => {
-                if (!totals[log.employer]) {
-                    totals[log.employer] = 0;
+                const logDate = new Date(log.date);
+                if (logDate >= fortnightStart && logDate <= fortnightEnd) {
+                    if (!totals[log.employer]) {
+                        totals[log.employer] = 0;
+                    }
+                    totals[log.employer] += log.hours || 0; // Ensure log.hours is a number
                 }
-                totals[log.employer] += log.hours;
             });
 
         return totals;
     };
 
+
     const calculateTotalFortnightHours = () => {
+        if (!Array.isArray(workLog) || workLog.length === 0) {
+            return 0; // Return 0 if workLog is empty
+        }
         const fortnightStart = dates[0];
         const fortnightEnd = dates[dates.length - 1];
+
         return workLog
-            .filter((log) => {
+            .filter((log) => log && log.date) // Exclude undefined/null logs
+            .map((log) => {
                 const logDate = new Date(log.date);
-                return logDate >= fortnightStart && logDate <= fortnightEnd;
+                return logDate >= fortnightStart && logDate <= fortnightEnd ? log.hours || 0 : 0;
             })
-            .reduce((total, log) => total + log.hours, 0);
+            .reduce((total, hours) => total + hours, 0);
     };
+
 
     const totalHoursByEmployer = getTotalHoursByEmployer();
     const totalFortnightHours = calculateTotalFortnightHours();

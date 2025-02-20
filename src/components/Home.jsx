@@ -3,36 +3,145 @@ import AddEmployer from './AddEmployer';
 import AddShiftWorked from './AddShiftWorked';
 import WorkHoursCalendar from './WorkHoursCalendar';
 import { signOut } from "firebase/auth";
-import { auth } from "./../firebase";
+import { db, auth } from "./../firebase";
 import { useNavigate } from "react-router-dom";
+import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const Home = () => {
     const navigate = useNavigate();
+    const [user] = useAuthState(auth);
 
-    const [employer, setEmployer] = useState(() => {
-        return JSON.parse(localStorage.getItem('employer')) || [];
-    });
-    const [workLog, setWorkLog] = useState(() => {
-        return JSON.parse(localStorage.getItem('workLog')) || [];
-    });
-
-    // Sync employer state with local storage
+    const [employer, setEmployer] = useState([]);
+    const [workLog, setWorkLog] = useState([]);
     useEffect(() => {
-        localStorage.setItem('employer', JSON.stringify(employer));
-    }, [employer]);
+        if (!user) return;
 
-    // Sync workLog state with local storage
-    useEffect(() => {
-        localStorage.setItem('workLog', JSON.stringify(workLog));
-    }, [workLog]);
+        let isMounted = true; // ✅ Prevent state update if component unmounts
+
+        const fetchData = async () => {
+            try {
+                const employerRef = collection(db, "users", user.uid, "employers");
+                const employerSnapshot = await getDocs(employerRef);
+                const employerList = employerSnapshot.docs.map(doc => doc.data().name);
+
+                const workLogRef = collection(db, "users", user.uid, "workLog");
+                const workLogSnapshot = await getDocs(workLogRef);
+                const workLogList = workLogSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                if (isMounted) {
+                    setEmployer(employerList);
+                    setWorkLog(workLogList);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
+        fetchData(); // ✅ Ensures async functions run properly
+
+        return () => {
+            isMounted = false; // ✅ Cleanup to avoid memory leaks
+        };
+    }, [user]);
+
+
+
+    const addEmployer = async (newEmployer) => {
+
+
+        try {
+
+            if (user) {
+                const employerRef = collection(db, "users", user.uid, "employers");
+
+                await addDoc(employerRef, { name: newEmployer });
+                setEmployer(prevEmployers => [...prevEmployers, newEmployer]);
+                alert('Employer added!');
+            } else {
+                alert('No user logged in.');
+            }
+        } catch (error) {
+            alert('Failed to add employer.');
+        }
+
+    };
+
+
+
+    const addWorkLog = async (newShift) => {
+
+        if (!user) {
+            console.error("No user logged in. Cannot add work log.");
+            alert("You must be logged in to add a work log.");
+            return;
+        }
+
+        // Check if required fields are provided
+        if (!newShift.employer || !newShift.hours || !newShift.date) {
+            console.error("Missing required fields: employer, hours, or date");
+            alert("Employer, hours worked, and date are required.");
+            return;
+        }
+
+        // Ensure that hours is a valid number
+        if (isNaN(newShift.hours) || newShift.hours <= 0) {
+            console.error("Invalid hours value:", newShift.hours);
+            alert("Please provide a valid positive number for hours worked.");
+            return;
+        }
+
+        // Ensure date is in valid format (you can extend this logic to use a specific date format if needed)
+        const shiftDate = new Date(newShift.date);
+        if (isNaN(shiftDate.getTime())) {
+            console.error("Invalid date format:", newShift.date);
+            alert("Please provide a valid date.");
+            return;
+        }
+
+        try {
+            // Proceed with adding the work log to Firestore
+            const workLogRef = collection(db, "users", user.uid, "workLog");
+            const docRef = await addDoc(workLogRef, newShift);
+
+            // Attach Firestore document ID to the newShift
+            const newShiftWithId = { id: docRef.id, ...newShift };
+
+            // Update the local state to include the new shift
+            setWorkLog(prevWorkLog => [...prevWorkLog, newShiftWithId]); // Uses functional state update
+
+        } catch (error) {
+            console.error("Error adding work log:", error);
+            alert("Failed to add work log. Please try again.");
+        }
+    };
+
+
 
     // Function to clear all data
-    const clearAllData = () => {
-        setEmployer([]);
-        setWorkLog([]);
-        localStorage.removeItem('employer');
-        localStorage.removeItem('workLog');
+    const clearAllData = async () => {
+        if (user) {
+            const employerRef = collection(db, "users", user.uid, "employers");
+            const workLogRef = collection(db, "users", user.uid, "workLog");
+
+            const employerSnapshot = await getDocs(employerRef);
+            employerSnapshot.forEach(async (doc) => {
+                await deleteDoc(doc.ref);
+            });
+
+            const workLogSnapshot = await getDocs(workLogRef);
+            workLogSnapshot.forEach(async (doc) => {
+                await deleteDoc(doc.ref);
+            });
+
+            setEmployer([]);
+            setWorkLog([]);
+        }
     };
+
 
     const handleLogout = async () => {
         await signOut(auth);
@@ -118,15 +227,15 @@ const Home = () => {
             {/* Form Section with AddEmployer and AddShiftWorked side by side */}
             <div style={styles.formSection}>
                 <div style={styles.sectionContainer}>
-                    <AddEmployer employerList={employer} setEmployer={setEmployer} />
+                    <AddEmployer employerList={employer} setEmployer={addEmployer} />
                 </div>
                 <div style={styles.sectionContainer}>
-                    <AddShiftWorked employerList={employer} workLog={workLog} setWorkLog={setWorkLog} />
+                    <AddShiftWorked employerList={employer} workLog={workLog} setWorkLog={addWorkLog} />
                 </div>
             </div>
 
             <h2 style={styles.sectionTitle}>Fortnight Starting Last Week</h2>
-            <WorkHoursCalendar workLog={workLog} startDateOffsetWeeks={-7} setWorkLog={setWorkLog} />
+            <WorkHoursCalendar workLog={workLog} startDateOffsetWeeks={-7} setWorkLog={addWorkLog} />
 
             <h2 style={styles.sectionTitle}>Fortnight Ending Next Week</h2>
             <WorkHoursCalendar workLog={workLog} startDateOffsetWeeks={0} />

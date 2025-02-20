@@ -14,7 +14,7 @@ function AddEmployer({ employerList, setEmployer }) {
             alert('Employer name cannot be empty.');
             return;
         }
-        setEmployer([...employerList, employerName]); // Add new employer to the list
+        setEmployer(employerName); // Add new employer to the list
         setEmployerName(''); // Clear the input field
         setShowModal(false); // Close the modal after adding the employer
     };
