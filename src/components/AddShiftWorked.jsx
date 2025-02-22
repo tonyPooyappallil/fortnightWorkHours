@@ -109,7 +109,7 @@ const AddShiftWorked = ({ employerList, workLog, setWorkLog }) => {
                         style={styles.select}
                     >
                         <option value="">--Select an Employer--</option>
-                        {employerList.map((employer, index) => (
+                        {employerList && employerList.map((employer, index) => (
                             <option key={index} value={employer} style={styles.option}>
                                 {employer}
                             </option>

@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 function AddEmployer({ employerList, setEmployer }) {
     const [employerName, setEmployerName] = useState('');
     const [showModal, setShowModal] = useState(false);
-
     const handleChange = (event) => {
         setEmployerName(event.target.value);
     };
