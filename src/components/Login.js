@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
-import { auth, provider } from '../firebase' // Ensure Google provider is imported
+import { auth, provider } from '../firebase'
 import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
@@ -9,22 +9,20 @@ const Login = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  // Automatically redirect if user is logged in
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
-        navigate('/home') // Redirect to home if user is already logged in
+        navigate('/home')
       }
     })
-
-    return () => unsubscribe() // Clean up the listener on unmount
+    return () => unsubscribe()
   }, [navigate])
 
   const handleLogin = async e => {
     e.preventDefault()
     try {
       await signInWithEmailAndPassword(auth, email, password)
-      navigate('/home') // Redirect after login
+      navigate('/home')
     } catch (err) {
       setError('Failed to log in. Check your credentials.')
     }
@@ -33,28 +31,27 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       await signInWithPopup(auth, provider)
-      navigate('/home') // Redirect after successful login
+      navigate('/home')
     } catch (err) {
       setError('Google Login Failed: ' + err.message)
     }
   }
 
-  // Styling
+  // Styling with mobile responsiveness
   const styles = {
     container: {
       fontFamily: 'Arial, sans-serif',
       backgroundColor: '#f9f9f9',
-      // padding: '30px',
       minHeight: '100vh',
-      position: 'relative',
       display: 'flex',
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
+      padding: '20px'
     },
     button: {
       backgroundColor: '#007BFF',
       color: 'white',
-      padding: '12px 20px',
+      padding: '12px',
       border: 'none',
       borderRadius: '5px',
       cursor: 'pointer',
@@ -62,13 +59,12 @@ const Login = () => {
       boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
       transition: 'background-color 0.3s',
       margin: '10px 0',
-      width: '100%',
-      maxWidth: '400px' // Same max width as the form inputs
+      width: '100%'
     },
     buttonGoogle: {
-      backgroundColor: '#DB4437', // Google red
+      backgroundColor: '#DB4437',
       color: 'white',
-      padding: '12px 20px',
+      padding: '12px',
       border: 'none',
       borderRadius: '5px',
       cursor: 'pointer',
@@ -76,35 +72,32 @@ const Login = () => {
       boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
       transition: 'background-color 0.3s',
       margin: '10px 0',
-      width: '100%',
-      maxWidth: '450px' // Same max width as the form inputs and other buttons
+      width: '100%'
     },
     buttonHover: {
-      backgroundColor: '#0056b3' // Darker blue for button hover
+      backgroundColor: '#0056b3'
     },
     header: {
       textAlign: 'center',
-      marginTop: '30px',
       marginBottom: '20px',
       color: '#333',
-      fontSize: '30px'
+      fontSize: '24px'
     },
     form: {
+      width: '100%',
       maxWidth: '400px',
-      margin: '0 auto',
       backgroundColor: '#fff',
       padding: '20px',
       borderRadius: '8px',
       boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
     },
     input: {
-      width: '380px',
+      width: '100%',
       padding: '10px',
       marginBottom: '15px',
       border: '1px solid #ccc',
       borderRadius: '5px',
-      fontSize: '16px',
-      maxWidth: '400px'
+      fontSize: '16px'
     },
     errorMessage: {
       color: 'red',
@@ -113,13 +106,9 @@ const Login = () => {
     },
     footer: {
       textAlign: 'center',
-      alignItems: 'center',
-      position: 'absolute',
-      bottom: '20px',
       fontSize: '14px',
       color: '#333',
-      width: '400px',
-      margin: 'auto'
+      marginTop: '10px'
     },
     signupLink: {
       display: 'block',
