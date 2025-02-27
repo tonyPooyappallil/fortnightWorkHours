@@ -55,11 +55,17 @@ const WorkHoursCalendar = ({ workLog, startDateOffsetWeeks, setWorkLog }) => {
         const fortnightStart = dates[0];
         const fortnightEnd = dates[dates.length - 1];
 
+
+
         workLog
             .filter((log) => log && log.date) // Ensure log exists and has a date
             .forEach((log) => {
+
                 const logDate = new Date(log.date);
+                logDate.setHours(0, 0, 0, 0);
+
                 if (logDate >= fortnightStart && logDate <= fortnightEnd) {
+
                     if (!totals[log.employer]) {
                         totals[log.employer] = 0;
                     }
@@ -82,6 +88,8 @@ const WorkHoursCalendar = ({ workLog, startDateOffsetWeeks, setWorkLog }) => {
             .filter((log) => log && log.date) // Exclude undefined/null logs
             .map((log) => {
                 const logDate = new Date(log.date);
+                logDate.setHours(0, 0, 0, 0);
+
                 return logDate >= fortnightStart && logDate <= fortnightEnd ? log.hours || 0 : 0;
             })
             .reduce((total, hours) => total + hours, 0);
